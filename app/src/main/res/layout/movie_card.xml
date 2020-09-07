@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="6dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/movieCover"
+        android:layout_width="90dp"
+        android:layout_height="115dp"
+        android:background="@drawable/rounded_corner" />
+    <TextView
+        android:id="@+id/movieTitle"
+        android:layout_marginTop="8dp"
+        android:text="Fast and Furious: Hobbs and shaw"
+        android:layout_gravity="center"
+        android:textSize="12sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <LinearLayout
+        android:layout_marginTop="2dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/Rating"
+        android:text="8.3"
+        android:textSize="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+        <ImageView
+            android:src="@drawable/rating"
+            android:layout_width="20dp"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
+</LinearLayout>

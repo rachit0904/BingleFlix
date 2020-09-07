@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:text="User Review"
+        android:paddingLeft="10dp"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <RatingBar
+        android:id="@+id/rateBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:secondaryProgressTint="#c7a900"
+        android:progressBackgroundTint="#616161"
+        android:progressTint="#c7a900"/>
+
+    <EditText
+        android:id="@+id/feedbckIp"
+        android:layout_marginTop="10dp"
+        android:textSize="16sp"
+        android:inputType="textShortMessage"
+        android:textColor="@android:color/white"
+        android:hint="Enter your feedback here(Optional)"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/submitBtn"
+        android:text="Submit"
+        android:background="#9F7E7E7E"
+        android:textAllCaps="false"
+        android:textSize="18sp"
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"/>
+</LinearLayout>

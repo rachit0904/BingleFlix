@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Movies</string>
+    <string name="contactMessage">
+        Stay in touch with us to get feeds related to latest updates:
+    </string>
+    <string name="about_msg">Hey User, thanks for choosing us, here we solemly aim to bring the widest range of movies for your with most affordable suscribtion plans and put efforts to respect your privacy picking recommendations best suited for you. Also we know friends and collegues matter thus we have a unique feature to connect all with the suggestion feature and screen cast to binge flix on any screen continuing your last played items.</string>
+    <string name="tab_text_1">Items searched</string>
+    <string name="tab_text_2">Items watched</string>
+</resources>

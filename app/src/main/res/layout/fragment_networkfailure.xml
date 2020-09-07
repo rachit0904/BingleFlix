@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#101010"
+    tools:context=".networkfailure">
+   <RelativeLayout
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
+
+      <com.airbnb.lottie.LottieAnimationView
+          android:id="@+id/img"
+          app:lottie_autoPlay="true"
+          app:lottie_loop="true"
+          android:layout_marginTop="100dp"
+          android:layout_width="205dp"
+          android:layout_height="275dp"
+          android:layout_centerHorizontal="true"
+          app:lottie_fileName="nointernet6.json" />
+      <TextView
+          android:id="@+id/txt"
+          android:textSize="14sp"
+          android:textColor="#9E9E9E"
+          android:gravity="center"
+          android:text="Ohh shoot..No internet connection!\nMake sure your network or wifi is available"
+          android:layout_centerHorizontal="true"
+          android:layout_marginTop="10dp"
+          android:layout_below="@+id/img"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"/>
+      <Button
+          android:id="@+id/retry"
+          android:layout_marginTop="80dp"
+          android:textAllCaps="false"
+          android:text="Retry"
+          android:layout_centerHorizontal="true"
+          android:layout_below="@id/txt"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"/>
+   </RelativeLayout>
+</FrameLayout>
