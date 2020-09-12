@@ -2,21 +2,28 @@ package com.project.fragmentsampleapp;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 
+import Model.MovieCardsData;
 import Model.MovieData;
 import Util.Constants;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,7 +35,33 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.LoadControl;
+import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.youtube.player.YouTubeInitializationResult;
+import com.google.android.youtube.player.YouTubePlayer;
+import com.google.android.youtube.player.YouTubePlayerView;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -36,105 +69,152 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Objects;
 
-public class moviedetails_frag extends Fragment {
+public class moviedetails_frag extends Fragment  {
     private TextView movietitle, releaseYr, duration, rating, plot, actors, director, writer, genere, awards, typeDesc, likeTxt, dislikeTxt, watchlistTxt, userRating;
-    private ImageButton like, dislike, watchlist, back;
+    private ImageButton like, dislike, watchlist, back,fullScreen,play;
     private ImageView poster, star;
-    private Button rate, play;
-    private String URL;
+    private Button rate;
+    private ImageView backdrpImg;
+    private String URL,ID,vid_key,movieId;
     private RequestQueue queue;
     private SwipeRefreshLayout refreshLayout;
     private int state_like = 0, state_dislike = 0, state_watchlist = 0;
-    private List<MovieData> moviesDataList;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view=inflater.inflate(R.layout.fragment_moviedetails_frag, container, false);
         initializeId(view);
-        Bundle bundle = getActivity().getIntent().getExtras();
-        String id = bundle.getString("imdbId");
-        URL = Constants.URL_INFO_LEFT + id + Constants.URL_RIGHT;
-        queue = Volley.newRequestQueue(getContext());
-        final JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, URL, null, new Response.Listener<JSONObject>() {
+        final Bundle bundle = getActivity().getIntent().getExtras();
+        final String id = bundle.getString("imdbId");
+        String url;
+        String url_movies=Constants.toImdbleft+id+Constants.toImdbRight;          //for type:movies url->url_movies
+        String url_series=Constants.toImdbleft_series+id+Constants.toImdbRight;   //for type:series url->url_series
+
+        switch (bundle.getInt("ch")) {
+            //from homepge
+            case 1: {
+                URL = Constants.URL_INFO_LEFT + id + Constants.URL_RIGHT;
+                ID=id;
+                break;
+            }
+            //from searchfrag
+            case 2: {
+                final RequestQueue requestQueue=Volley.newRequestQueue(getContext());
+                final JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET,
+                        url_movies, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                           URL=Constants.URL_INFO_LEFT+response.getString("imdb_id")+Constants.URL_RIGHT;
+                            ID=response.getString("imdb_id");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getContext(), "issue!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                requestQueue.add(objectRequest);
+                break;
+            }
+        }
+        Handler handler=new Handler();
+        handler.postDelayed(new Runnable() {
             @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    movietitle.setText(response.getString("Title"));
-                    releaseYr.setText(response.getString("Year"));
-                    duration.setText("|  " + response.getString("Runtime"));
-                    rating.setText(response.getString("imdbRating") + "/10");
-                    plot.setText(response.getString("Plot"));
-                    genere.setText(response.getString("Genre"));
-                    actors.setText("Staring: " + response.getString("Actors"));
-                    director.setText("Directed By: " + response.getString("Director"));
-                    writer.setText("Written By: " + response.getString("Writer"));
-                    String rslt = response.getString("Type");
-                    if (rslt.equals("movie")) {
-                        String rsltMovies = response.getString("Production");
-                        typeDesc.setVisibility(View.VISIBLE);
-                        typeDesc.setText("Produced By: " + rsltMovies);
-                    } else if (rslt.equals("series")) {
-                        typeDesc.setVisibility(View.VISIBLE);
-                        String rsltSeries = response.getString("series");
-                        typeDesc.setText(String.valueOf(rslt.charAt(0)).toUpperCase() + rslt.substring(1) + " | Total Seasons: " + rsltSeries);
-                    }
-                    String award = response.getString("Awards");
-                    if (!award.isEmpty()) {
-                        awards.setVisibility(View.VISIBLE);
-                        awards.setText("Awards: " + award);
-                    }
-                    String posterURL = response.getString("Poster");
-                    Picasso.
-                            with(getContext())
-                            .load(posterURL)
-                            .fit()
-                            .error(R.drawable.movie_icon)
-                            .placeholder(R.drawable.movie_icon) // can also be a drawable
-                            .into(poster);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+            public void run() {
+                {
+                    queue = Volley.newRequestQueue(getContext());
+                    final JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, URL, null, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
+                                movietitle.setText(response.getString("Title"));
+                                releaseYr.setText(response.getString("Year"));
+                                duration.setText("|  " + response.getString("Runtime"));
+                                rating.setText(response.getString("imdbRating") + "/10");
+                                plot.setText(response.getString("Plot"));
+                                genere.setText(response.getString("Genre"));
+                                actors.setText("Staring: " + response.getString("Actors"));
+                                director.setText("Directed By: " + response.getString("Director"));
+                                writer.setText("Written By: " + response.getString("Writer"));
+                                String rslt = response.getString("Type");
+                                if (rslt.equals("movie")) {
+                                    String rsltMovies = response.getString("Production");
+                                    typeDesc.setVisibility(View.VISIBLE);
+                                    typeDesc.setText("Produced By: " + rsltMovies);
+                                } else if (rslt.equals("series")) {
+                                    typeDesc.setVisibility(View.VISIBLE);
+                                    String rsltSeries = response.getString("series");
+                                    typeDesc.setText(String.valueOf(rslt.charAt(0)).toUpperCase() + rslt.substring(1) + " | Total Seasons: " + rsltSeries);
+                                }
+                                String award = response.getString("Awards");
+                                if (!award.isEmpty()) {
+                                    awards.setVisibility(View.VISIBLE);
+                                    awards.setText("Awards: " + award);
+                                }
+                                String posterURL = response.getString("Poster");
+                                Picasso.
+                                        with(getContext())
+                                        .load(posterURL)
+                                        .fit()
+                                        .noFade()
+                                        .into(poster);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+
+                            Toast.makeText(getContext(), "No internet connection", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    queue.add(request);
+                    RequestQueue requestQueue=Volley.newRequestQueue(getContext());
+                    final JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET,
+                            Constants.getImageDataLeft+ID+Constants.getImageDataRight, null, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
+                                JSONArray array=response.getJSONArray("movie_results");
+                                for (int i = 0; i < array.length(); i++) {
+                                    JSONObject objectRequest = array.getJSONObject(i);
+                                    movieId=objectRequest.getString("id");
+                                    String bckdrpImg=Constants.imagePath+objectRequest.getString("backdrop_path");
+                                    Picasso.
+                                            with(getContext())
+                                            .load(bckdrpImg)
+                                            .noFade()
+                                            .fit()
+                                            .into(backdrpImg);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(getContext(), "issue!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    requestQueue.add(objectRequest);
                 }
             }
-        }, new Response.ErrorListener() {
+        },800);
+        play.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onErrorResponse(VolleyError error) {
+            public void onClick(View v) {
 
-                Toast.makeText(getContext(), "No internet connection", Toast.LENGTH_LONG).show();
-            }
-        });
-        queue.add(request);
-
-        RequestQueue requestQueue=Volley.newRequestQueue(getContext());
-        final JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET,
-                Constants.getImageDataLeft+id+Constants.getImageDataRight, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    JSONArray array=response.getJSONArray("movie_results");
-                    for (int i = 0; i < array.length(); i++) {
-                        JSONObject objectRequest = array.getJSONObject(i);
-                        ImageView backdrpImg=view.findViewById(R.id.backdropImage);
-                        String bckdrpImg=Constants.imagePath+objectRequest.getString("backdrop_path");
-                        Picasso.
-                                with(getContext())
-                                .load(bckdrpImg)
-                                .noFade()
-                                .fit()
-                                .into(backdrpImg);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    playTrailer(movieId);
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getContext(), "issue!", Toast.LENGTH_SHORT).show();
-            }
         });
-        requestQueue.add(objectRequest);
 
             back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -246,6 +326,39 @@ public class moviedetails_frag extends Fragment {
         });
         return view;
     }
+
+    private void playTrailer(String id) {
+        final RequestQueue requestQueue=Volley.newRequestQueue(getContext());
+        final JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET,
+                Constants.getVideoDataLeft+id+Constants.getVideoDataRight, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    JSONArray jsonArray = response.getJSONArray("results");
+                    JSONObject objectRequest = jsonArray.getJSONObject(0);
+                    vid_key=objectRequest.getString("key");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getContext(), "issue!", Toast.LENGTH_LONG).show();
+            }
+        });
+        requestQueue.add(objectRequest);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if(!vid_key.isEmpty()){
+                    Intent intent=new Intent(getContext(),player.class);
+                    intent.putExtra("movie_id",vid_key);
+                    startActivity(intent);
+                    }
+                }
+            },800);
+    }
     private void feedbackPopup() {
         View view = getLayoutInflater().inflate(R.layout.userreview_popup, null);
         final RatingBar bar = (RatingBar) view.findViewById(R.id.rateBar);
@@ -280,6 +393,7 @@ public class moviedetails_frag extends Fragment {
         duration = view.findViewById(R.id.duration);
         rating = view.findViewById(R.id.imdbrating);
         like = view.findViewById(R.id.like);
+        backdrpImg=view.findViewById(R.id.backdropImage);
         likeTxt = view.findViewById(R.id.likeTxtview);
         dislike = view.findViewById(R.id.dislike);
         dislikeTxt = view.findViewById(R.id.dislikeTxtview);
@@ -293,6 +407,7 @@ public class moviedetails_frag extends Fragment {
         typeDesc = view.findViewById(R.id.typeDesc);
         awards = view.findViewById(R.id.awards);
         rate = view.findViewById(R.id.rateBtn);
-        play = view.findViewById(R.id.playBtn);
+        play = view.findViewById(R.id.play);
     }
+
 }

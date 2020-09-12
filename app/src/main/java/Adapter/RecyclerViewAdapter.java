@@ -72,6 +72,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                     Intent intent=new Intent(context, movieDetails.class);
                     MovieData data=list.get(getAdapterPosition());
                     intent.putExtra("imdbId",data.getImdbId());
+                    intent.putExtra("ch",1);
                     intent.putExtra("choice","moviedata");
                     context.startActivity(intent);
                 }

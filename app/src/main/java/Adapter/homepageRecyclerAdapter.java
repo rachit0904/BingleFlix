@@ -1,6 +1,7 @@
 package Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,11 +11,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.project.fragmentsampleapp.R;
+import com.project.fragmentsampleapp.movieDetails;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 import Model.MovieCardsData;
+import Model.MovieData;
+import Util.Constants;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,14 +42,13 @@ public class homepageRecyclerAdapter extends RecyclerView.Adapter<homepageRecycl
         MovieCardsData cardsData=cardsDataList.get(position);
         holder.title.setText(cardsData.getMovieTitle());
         holder.rating.setText(cardsData.getRating());
-        /*String posterUrl=cardsData.getPoster();
+        String posterUrl= Constants.imagePath+cardsData.getPoster();
         Picasso.
                 with(context)
                 .load(posterUrl)
                 .noFade()
                 .fit()
-                .placeholder(R.drawable.movie_icon) // can also be a drawable
-                .into(holder.poster);*/
+                .into(holder.poster);
     }
 
     @Override
@@ -66,7 +69,12 @@ public class homepageRecyclerAdapter extends RecyclerView.Adapter<homepageRecycl
 
         @Override
         public void onClick(View v) {
-            Toast.makeText(context, "item clicked!", Toast.LENGTH_SHORT).show();
+            Intent intent=new Intent(context, movieDetails.class);
+            MovieCardsData data=cardsDataList.get(getAdapterPosition());
+            intent.putExtra("imdbId",data.getImdbId());
+            intent.putExtra("choice","moviedata");
+            intent.putExtra("ch",2);
+            context.startActivity(intent);
         }
     }
 }

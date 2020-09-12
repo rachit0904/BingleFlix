@@ -11,6 +11,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar"
         android:usesCleartextTraffic="true">
+        <activity android:name=".player"
+            android:rotationAnimation="seamless"
+            android:screenOrientation="landscape"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -18,11 +21,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".historyPage"></activity>
-        <activity android:name=".categorydetails" android:parentActivityName=".MainActivity"></activity>
+        <activity android:name=".historyPage" />
+        <activity
+            android:name=".categorydetails"
+            android:parentActivityName=".MainActivity" />
         <activity android:name=".movieDetails" />
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
 </manifest>

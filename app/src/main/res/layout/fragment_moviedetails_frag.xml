@@ -19,15 +19,32 @@
              android:id="@+id/backdropImage"
              android:elevation="-80dp"
              android:layout_width="match_parent"
-             android:layout_height="180dp"/>
-           <ImageButton
-               android:id="@+id/backBtn"
-               android:layout_marginTop="25dp"
-               android:layout_marginLeft="24dp"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:background="@drawable/back"
-               android:src="@drawable/back" />
+             android:layout_height="186dp"/>
+
+         <androidx.cardview.widget.CardView
+             android:layout_width="wrap_content"
+             android:layout_height="30dp"
+             app:cardCornerRadius="15dp"
+             app:cardBackgroundColor="@android:color/transparent"
+             android:layout_centerHorizontal="true"
+             android:layout_marginTop="69dp">
+            <ImageButton
+                android:id="@+id/play"
+                android:src="@drawable/watch"
+                android:background="@android:color/transparent"
+                android:layout_gravity="center_vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+         </androidx.cardview.widget.CardView>
+
+         <ImageButton
+             android:id="@+id/backBtn"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_marginLeft="24dp"
+             android:layout_marginTop="25dp"
+             android:background="@drawable/back"
+             android:src="@drawable/back" />
 
          <RelativeLayout
              android:id="@+id/relativeLayout"
@@ -40,7 +57,7 @@
              android:elevation="10dp">
             <androidx.cardview.widget.CardView
                 android:id="@+id/card"
-                android:fadingEdge="vertical"
+                android:foregroundGravity="center_vertical"
                 android:background="@drawable/rounded_corner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
@@ -52,7 +69,8 @@
             <LinearLayout
                 android:id="@+id/linearLayout"
                 android:layout_width="247dp"
-                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_height="match_parent"
                 android:layout_marginLeft="20dp"
                 android:layout_toRightOf="@+id/card"
                 android:orientation="vertical"
@@ -63,7 +81,7 @@
                    android:id="@+id/movietitle"
                    android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
-                   android:layout_marginTop="3dp"
+
                    android:hint="Movie Title [UA]"
                    android:textColor="@android:color/white"
                    android:textColorHint="@android:color/white"
@@ -73,7 +91,7 @@
                    android:id="@+id/genere"
                    android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
-                   android:layout_marginTop="7dp"
+                   android:layout_marginTop="6dp"
                    android:hint="Genere: "
                    android:textColorHint="@android:color/white"
                    android:textSize="14sp" />

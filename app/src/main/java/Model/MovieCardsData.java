@@ -1,9 +1,17 @@
 package Model;
 
 public class MovieCardsData {
-    String movieTitle,rating,poster;
+    String movieTitle,rating,poster,imdbId;
 
     public MovieCardsData() {
+    }
+
+    public String getImdbId() {
+        return imdbId;
+    }
+
+    public void setImdbId(String imdbId) {
+        this.imdbId = imdbId;
     }
 
     public String getPoster() {
