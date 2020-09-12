@@ -1,0 +1,2 @@
+# BingleFlix
+A movie app with similar features like the other flix apps available in play store ex. Netflix,Amazon prime,zee etc. Though innovating for long distance and locked up in lock-down friends, get connected such that as if they are watching movies or series together with buddies feature where one can make friends and recommend or share stuff with them. Also it allows user to screen cast stuff and get watch analytics and weekend movie recommendation from us in their mailbox!
