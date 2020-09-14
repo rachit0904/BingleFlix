@@ -34,7 +34,7 @@ public class Constants {
     public static final String getSimilarDataRight="/similar?api_key=b17ab37f395a1dd765fa7ebc6f0a689f";
 
     //image_path_URL
-    public static final String imagePath="https://image.tmdb.org/t/p/original";
+    public static final String imagePath="http://image.tmdb.org/t/p//original/";
 
     public static final String getImageDataLeft="https://api.themoviedb.org/3/find/";
     //in between enter IMDbId...

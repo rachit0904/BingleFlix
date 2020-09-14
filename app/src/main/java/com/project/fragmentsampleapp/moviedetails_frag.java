@@ -77,7 +77,7 @@ public class moviedetails_frag extends Fragment  {
     private ImageView poster, star;
     private Button rate;
     private ImageView backdrpImg;
-    private String URL,ID,vid_key,movieId;
+    private String URL,ID,vid_key,movieId,rslt_type;
     private RequestQueue queue;
     private SwipeRefreshLayout refreshLayout;
     private int state_like = 0, state_dislike = 0, state_watchlist = 0;
@@ -88,7 +88,6 @@ public class moviedetails_frag extends Fragment  {
         initializeId(view);
         final Bundle bundle = getActivity().getIntent().getExtras();
         final String id = bundle.getString("imdbId");
-        String url;
         String url_movies=Constants.toImdbleft+id+Constants.toImdbRight;          //for type:movies url->url_movies
         String url_series=Constants.toImdbleft_series+id+Constants.toImdbRight;   //for type:series url->url_series
 
@@ -116,7 +115,7 @@ public class moviedetails_frag extends Fragment  {
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getContext(), "issue!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "slow internet connection!", Toast.LENGTH_SHORT).show();
                     }
                 });
                 requestQueue.add(objectRequest);
@@ -143,11 +142,13 @@ public class moviedetails_frag extends Fragment  {
                                 director.setText("Directed By: " + response.getString("Director"));
                                 writer.setText("Written By: " + response.getString("Writer"));
                                 String rslt = response.getString("Type");
-                                if (rslt.equals("movie")) {
+                                if(rslt.equalsIgnoreCase("movie") ){
+                                    rslt_type="movie_results";
                                     String rsltMovies = response.getString("Production");
                                     typeDesc.setVisibility(View.VISIBLE);
                                     typeDesc.setText("Produced By: " + rsltMovies);
-                                } else if (rslt.equals("series")) {
+                                }if(rslt.equalsIgnoreCase("series")){
+                                    rslt_type="tv_results";
                                     typeDesc.setVisibility(View.VISIBLE);
                                     String rsltSeries = response.getString("series");
                                     typeDesc.setText(String.valueOf(rslt.charAt(0)).toUpperCase() + rslt.substring(1) + " | Total Seasons: " + rsltSeries);
@@ -157,13 +158,6 @@ public class moviedetails_frag extends Fragment  {
                                     awards.setVisibility(View.VISIBLE);
                                     awards.setText("Awards: " + award);
                                 }
-                                String posterURL = response.getString("Poster");
-                                Picasso.
-                                        with(getContext())
-                                        .load(posterURL)
-                                        .fit()
-                                        .noFade()
-                                        .into(poster);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -182,11 +176,18 @@ public class moviedetails_frag extends Fragment  {
                         @Override
                         public void onResponse(JSONObject response) {
                             try {
-                                JSONArray array=response.getJSONArray("movie_results");
+                                JSONArray array=response.getJSONArray(rslt_type);
                                 for (int i = 0; i < array.length(); i++) {
                                     JSONObject objectRequest = array.getJSONObject(i);
                                     movieId=objectRequest.getString("id");
-                                    String bckdrpImg=Constants.imagePath+objectRequest.getString("backdrop_path");
+                                    String posterURL = "http://image.tmdb.org/t/p/original"+objectRequest.getString("poster_path");
+                                    Picasso.
+                                            with(getContext())
+                                            .load(posterURL)
+                                            .fit()
+                                            .noFade()
+                                            .into(poster);
+                                    String bckdrpImg="http://image.tmdb.org/t/p/original"+objectRequest.getString("backdrop_path");
                                     Picasso.
                                             with(getContext())
                                             .load(bckdrpImg)
@@ -211,7 +212,6 @@ public class moviedetails_frag extends Fragment  {
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                     playTrailer(movieId);
                 }
         });
@@ -329,8 +329,14 @@ public class moviedetails_frag extends Fragment  {
 
     private void playTrailer(String id) {
         final RequestQueue requestQueue=Volley.newRequestQueue(getContext());
+        String urlLeft="";
+        if(rslt_type.equalsIgnoreCase("movie_results")){
+            urlLeft=Constants.getVideoDataLeft;
+        }if(rslt_type.equalsIgnoreCase("tv_results")){
+            urlLeft=Constants.getVideoDataLeft_series;
+        }
         final JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET,
-                Constants.getVideoDataLeft+id+Constants.getVideoDataRight, null, new Response.Listener<JSONObject>() {
+                urlLeft+id+Constants.getVideoDataRight, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
