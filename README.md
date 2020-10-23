@@ -1,2 +1,2 @@
 # BingleFlix
-Imdb clone kinda app with playlist for latest, popular, top-rated and trending movies also allows one to search any movies or series from amazon prime/netflix/other platforms, connected with firestore to save/add movies to favourite or watch later collection
+An Android app allows user to watch, download and share latest-old movies from a range of 9000+ movies & series in english/hindi .
